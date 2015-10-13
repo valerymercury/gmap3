@@ -191,6 +191,18 @@ function Gmap3($this) {
       };
     }
 
+    if (td.clusterContent) {
+      clusterContent = function (indexes) {
+        var data = [];
+        $.each(indexes, function (i, index) {
+          data.push(internalClusterer.value(index));
+        });
+        return td.clusterContent.apply($this, [data]);
+      };
+    } else {
+      clusterContent = calculator;
+    }
+
     // set error function
     internalClusterer.error(function () {
       error.apply(self, arguments);
@@ -199,7 +211,8 @@ function Gmap3($this) {
     // set display function
     internalClusterer.display(function (cluster) {
       var i, style, atd, obj, offset, shadow,
-        cnt = calculator(cluster.indexes);
+        cnt = calculator(cluster.indexes),
+        content = clusterContent(cluster.indexes)
 
       // look for the style to use
       if (raw.force || cnt > 1) {
@@ -217,7 +230,7 @@ function Gmap3($this) {
         atd = $.extend({}, td);
         atd.options = $.extend({
             pane: "overlayLayer",
-            content: style.content ? style.content.replace("CLUSTER_COUNT", cnt) : "",
+            content: style.content ? style.content.replace("CLUSTER_CONTENT", content) : "",
             offset: {
               x: ("x" in offset ? offset.x : offset[0]) || 0,
               y: ("y" in offset ? offset.y : offset[1]) || 0
